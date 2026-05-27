@@ -1,3 +1,14 @@
+#pip install requests
+#pip install beautifulsoup4
+#pip install mysql-connector-python
+
+
+
+
+
+
+
+
 from bs4 import BeautifulSoup
 import requests
 import mysql.connector
