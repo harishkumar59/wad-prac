@@ -1,3 +1,8 @@
+#pip install networkx numpy scipy
+
+#create virtual environment 
+
+
 import networkx as nx
 
 # Create Directed Graph
