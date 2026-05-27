@@ -3,9 +3,10 @@
 #.venv\Scripts\activate.bat
 
 
-#must install 
+
 #pip install requests beautifulsoup4
 
+#python filename
 
 
 
