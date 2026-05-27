@@ -1,3 +1,16 @@
+#CREATE VIRTUAL ENVIRONMENT (OPTIONAL)
+#python -m venv .venv
+#.venv\Scripts\activate.bat
+
+
+#must install 
+#pip install requests beautifulsoup4
+
+
+
+
+
+
 import requests
 from bs4 import BeautifulSoup
 
