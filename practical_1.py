@@ -1,6 +1,15 @@
-#pip install requests
-#pip install beautifulsoup4
-#pip install mysql-connector-python
+#Scrape an online E-Commerce Site for Data.
+# 1. Extract product data from Amazon - be it any product and put these details in
+# the MySQL database. One can use pipeline. Like 1 pipeline to process the
+# scraped data and other to put data in the database and since Amazon has some
+# restrictions on scraping of data, ask them to work on small set of requests
+# otherwise proxies and all would have to be used.
+# 2. Scrape the details like color, dimensions, material etc. Or customer ratings by
+# features
+
+
+
+# pip install requests beautifulsoup4 mysql-connector-python
 
 
 

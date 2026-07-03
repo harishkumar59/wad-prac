@@ -1,48 +1,60 @@
+#Scrape an online Social Media Site for Data. Use python to scrape information from twitter.
+
 #CREATE VIRTUAL ENVIRONMENT (OPTIONAL)
 #python -m venv .venv
 #.venv\Scripts\activate.bat
 
 
 
-#pip install requests beautifulsoup4
-
-#python filename
-
-
+# pip install requests beautifulsoup4 lxml
 
 
 
 import requests
 from bs4 import BeautifulSoup
 
-# URL of Times of India Maharashtra news page
+# URL of Times of India Maharashtra page
 url = "https://timesofindia.indiatimes.com/india/maharashtra"
 
+# Browser headers
+headers = {
+    "User-Agent": "Mozilla/5.0"
+}
+
 try:
-    # Send request to website
-    response = requests.get(url)
+    # Send request
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
 
-    # Parse HTML content
+    # Parse HTML
     soup = BeautifulSoup(response.text, "html.parser")
-
-    # Find all headlines
-    headlines = soup.find_all("span", class_="w_tle")
 
     print("----- Latest Maharashtra News Headlines -----\n")
 
-    # Loop through headlines
-    for headline in headlines:
-        text = headline.text.strip()
+    headlines = set()
 
-        # Find link inside headline
-        a_tag = headline.find("a")
+    # Find all article links
+    for a in soup.find_all("a", href=True):
+        href = a["href"]
+        text = a.get_text(strip=True)
 
-        if a_tag:
-            link = "https://timesofindia.indiatimes.com" + a_tag.get("href")
+        if "/articleshow/" in href and text:
+            if href.startswith("/"):
+                href = "https://timesofindia.indiatimes.com" + href
 
-            print("Headline :", text)
-            print("Link     :", link)
+            if (text, href) not in headlines:
+                headlines.add((text, href))
+
+    if headlines:
+        for i, (title, link) in enumerate(headlines, start=1):
+            print(f"{i}. {title}")
+            print("Link:", link)
             print()
+    else:
+        print("No headlines found. The website may have changed its structure.")
+
+except requests.exceptions.RequestException as e:
+    print("Request Error:", e)
 
 except Exception as e:
     print("Error:", e)

@@ -1,3 +1,9 @@
+# Apriori Algorithm implementation in case study.
+
+
+#pip install pandas mlxtend
+
+
 import pandas as pd
 from mlxtend.preprocessing import TransactionEncoder
 from mlxtend.frequent_patterns import apriori

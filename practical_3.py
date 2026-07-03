@@ -1,6 +1,11 @@
+#Page Rank for link analysis using python Create a small set of pages namely page1, page2, page3 and page4 apply random walk on the same
+
+
 #pip install networkx numpy scipy
 
 #create virtual environment 
+
+
 
 
 import networkx as nx

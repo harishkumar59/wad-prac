@@ -1,3 +1,10 @@
+# Develop a basic crawler for the web search for user defined keywords.
+
+
+# pip install requests beautifulsoup4
+
+
+
 import requests
 from bs4 import BeautifulSoup
 

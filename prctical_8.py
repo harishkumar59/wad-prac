@@ -1,49 +1,67 @@
+# Develop a focused crawler for local search.
+
+# pip install requests beautifulsoup4
+
 import requests
-from bs4 import BeautifulSoup
 
-def web_crawler(url, keywords):
-    # Setup headers so websites don't block you as a robotic script
-    headers = {'User-Agent': 'Mozilla/5.0'}
-    
+def local_crawler(city, amenity):
+
+    bbox = {
+        "mumbai": "18.89,72.77,19.30,73.00",
+        "pune": "18.45,73.75,18.65,73.98",
+        "delhi": "28.50,76.90,28.90,77.40"
+    }
+
+    city = city.lower()
+
+    if city not in bbox:
+        print("City not available.")
+        return
+
+    query = f"""
+    [out:json][timeout:25];
+    node["amenity"="{amenity}"]({bbox[city]});
+    out body;
+    """
+
+    url = "https://overpass.kumi.systems/api/interpreter"
+
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
+
     try:
-        # Make a request to the URL
-        response = requests.get(url, headers=headers, timeout=10)
+        response = requests.post(
+            url,
+            data={"data": query},
+            headers=headers,
+            timeout=30
+        )
 
-        # Check if the request was successful
-        if response.status_code == 200:
-            # Parse the HTML content using BeautifulSoup
-            soup = BeautifulSoup(response.content, 'html.parser')
+        print("Status Code:", response.status_code)
 
-            # Find all the text on the page
-            page_text = soup.get_text()
+        response.raise_for_status()
 
-            print("\n--- Search Results ---")
-            # Check if any of the keywords are present on the page
-            for keyword in keywords:
-                if keyword.lower() in page_text.lower():
-                    print(f"✅ '{keyword}' found on {url}")
-                else:
-                    print(f"❌ '{keyword}' NOT found on {url}")
-        else:
-            print(f'Request failed with status code {response.status_code}')
-            
+        data = response.json()
+
+        if not data["elements"]:
+            print("No results found.")
+            return
+
+        print("\nSearch Results\n")
+
+        for i, place in enumerate(data["elements"][:10], 1):
+            tags = place.get("tags", {})
+            print(f"{i}. {tags.get('name','Unknown')}")
+            print("Latitude :", place["lat"])
+            print("Longitude:", place["lon"])
+            print("-"*40)
+
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print("Error:", e)
 
-# Fixed: Use input() to actually let the user type the URL
-url = input("Enter the URL to be searched (e.g., https://en.wikipedia.org/wiki/Web_crawler): ")
 
-keywords = []
-print("\nEnter the keywords to be searched:")
-while True:
-    k = input("Enter the keyword: ")
-    if k.strip():  # Avoid adding empty spaces
-        keywords.append(k)
-    
-    # Safer exit condition using strings instead of dangerous integer casting
-    x = input("Enter '1' to add more keywords, or '0' to finish: ")
-    if x == '0':
-        break
+city = input("Enter City: ")
+amenity = input("Enter Amenity (hospital/school/bank/pharmacy/restaurant): ")
 
-# Run the crawler
-web_crawler(url, keywords)
+local_crawler(city, amenity)
