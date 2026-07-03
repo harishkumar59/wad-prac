@@ -10,6 +10,14 @@
 
 
 
+"""
+This practical focuses on web scraping an e-commerce platform like Amazon to extract structured product data.
+ The Python script utilizes the Requests library to send HTTP requests with modified User-Agent headers to bypass basic bot-detection,
+ and BeautifulSoup to parse the HTML and locate specific elements like product titles, prices, ratings, and specifications using their tags and classes. Once the unstructured web data is extracted and cleaned, it is passed through a pipeline that connects to a local MySQL database via mysql-connector-python. The script dynamically inserts these details into a database table using structured SQL queries, demonstrating a complete pipeline from raw web extraction to persistent database storage.
+"""
+
+
+
 # pip install requests beautifulsoup4 mysql-connector-python
 
 
@@ -155,6 +163,11 @@ mydb.close()
 # -------------------practical 2 ---------------
 #Scrape an online Social Media Site for Data. Use python to scrape information from twitter.
 
+
+"""
+This practical demonstrates how to scrape a news website, specifically the Times of India Maharashtra page, using Python. It uses the Requests library to download the web page source code and BeautifulSoup to traverse the document object model (DOM). The script targets anchor tags with a specific URL pattern containing article IDs to extract live news headlines and their corresponding hyperlinks dynamically. By implementing a Python set data structure, the program automatically filters out duplicate entries to ensure a unique list of fresh headlines, showcasing a foundational approach to building real-time data feeds from media sites.
+"""
+
 #CREATE VIRTUAL ENVIRONMENT (OPTIONAL)
 #python -m venv .venv
 #.venv\Scripts\activate.bat
@@ -222,6 +235,11 @@ except Exception as e:
 #Page Rank for link analysis using python Create a small set of pages namely page1, page2, page3 and page4 apply random walk on the same
 
 
+
+"""
+This practical implements the PageRank algorithm and the Random Walk model to analyze link structures in a web graph. Using the NetworkX library, a directed graph is constructed with four custom nodes representing web pages and defined directed edges representing hyperlinks between them. The script applies the PageRank algorithm, which uses a damping factor (alpha=0.85) to simulate a user randomly clicking links or jumping to a new page entirely. The output assigns numerical importance scores to each page based on its incoming and outgoing links, illustrating how modern search engines evaluate and rank web pages based on structural authority.
+"""
+
 #pip install networkx numpy scipy
 
 #create virtual environment 
@@ -274,6 +292,11 @@ print("Page4 =", pr['page4'])
 # -------------------practical 4 ---------------
 #Perform Spam Classifier
 
+
+
+"""
+This practical involves building a text classification model to filter out spam messages from genuine ones. It reads a labeled CSV dataset using Pandas and splits the data into training and testing subsets to validate model performance. The script utilizes Scikit-Learn's CountVectorizer to convert raw text into a numerical matrix of token counts, a method known as the Bag-of-Words model. Finally, it trains a Multinomial Naive Bayes classifier on these vectors, which relies on word frequencies and probability to determine whether a newly input message is classified as "spam" or "genuine."
+"""
 
 
 #pip install pandas scikit-learn
@@ -335,6 +358,10 @@ else:
 
 #pip install requests beautifulsoup4 nltk && python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')”
 
+
+"""
+This practical demonstrates web page preprocessing and text mining using metadata and raw webpage text content. The script uses Requests and BeautifulSoup to fetch a page like Yahoo and extract specific metadata tags such as Open Graph titles, descriptions, and keywords which search engines use for indexing. It then extracts the visible body text and uses the Natural Language Toolkit (NLTK) to perform tokenization, converting text into individual words. It filters out non-alphabetic tokens and common stop words (like 'and', 'the'), and applies Porter Stemming to reduce words to their base root form, transforming messy web data into a clean, normalized format optimized for text analysis.
+"""
 
 
 from bs4 import BeautifulSoup
@@ -407,6 +434,13 @@ print(preprocessed_content[:500])
 #pip install pandas mlxtend
 
 
+
+"""
+This practical implements the Apriori algorithm using the Mlxtend library to perform Market Basket Analysis on a transactional dataset. The dataset consists of lists of items bought together, which is converted into a one-hot encoded boolean matrix using a TransactionEncoder. The Apriori algorithm evaluates this matrix to identify frequent itemsets that meet a user-defined minimum support threshold of 60%. This practical demonstrates unsupervised learning used by retailers to find strong associations between items, helping businesses understand customer purchasing behavior for product placements and recommendations.
+"""
+
+
+
 import pandas as pd
 from mlxtend.preprocessing import TransactionEncoder
 from mlxtend.frequent_patterns import apriori
@@ -439,6 +473,10 @@ print(frequent_itemsets)
 # pip install requests beautifulsoup4
 
 
+
+"""
+This practical covers the development of a basic web crawler designed to search for user-defined keywords on a specific live website. The script accepts a target URL and a dynamic list of search terms directly from the user, then uses Requests to pull the webpage content. BeautifulSoup parses the HTML to extract all visible text from the page. The program then converts both the web text and the user keywords to lowercase for an un-biased comparison, looping through the data to check for exact keyword matches, showing how search engine spiders index specific content.
+"""
 
 import requests
 from bs4 import BeautifulSoup
@@ -498,75 +536,66 @@ web_crawler(url, keywords)
 
 # pip install requests beautifulsoup4
 
+"""
+This practical develops a focused or topical crawler designed to search for specific local amenities within designated geographical boundaries. Instead of crawling random links, it interacts directly with the Overpass API to query the OpenStreetMap crowd-sourced database. The script takes a city name and an amenity type (like a hospital or school) as input, maps the city to its precise latitude and longitude bounding box coordinates, and submits a structured Overpass QL query. The API returns a refined JSON payload containing names, precise coordinates, and metadata of matching local spots, demonstrating how location-based search applications operate.
+"""
+
 import requests
 
-def local_crawler(city, amenity):
+def local_crawler(location, amenity):
 
-    bbox = {
-        "mumbai": "18.89,72.77,19.30,73.00",
-        "pune": "18.45,73.75,18.65,73.98",
-        "delhi": "28.50,76.90,28.90,77.40"
-    }
-
-    city = city.lower()
-
-    if city not in bbox:
-        print("City not available.")
+    if location.lower() != "mumbai":
+        print("Currently only Mumbai is supported.")
         return
 
     query = f"""
-    [out:json][timeout:25];
-    node["amenity"="{amenity}"]({bbox[city]});
-    out body;
+    [out:json];
+    node["amenity"="{amenity}"](18.89,72.77,19.27,72.99);
+    out;
     """
 
-    url = "https://overpass.kumi.systems/api/interpreter"
+    url = "https://overpass-api.de/api/interpreter"
 
     headers = {
-        "User-Agent": "Mozilla/5.0"
+        "User-Agent": "Python Local Crawler"
     }
 
-    try:
-        response = requests.post(
-            url,
-            data={"data": query},
-            headers=headers,
-            timeout=30
-        )
+    response = requests.post(
+        url,
+        data={"data": query},
+        headers=headers
+    )
 
-        print("Status Code:", response.status_code)
+    print("Status Code:", response.status_code)
 
-        response.raise_for_status()
-
+    if response.status_code == 200:
         data = response.json()
 
         if not data["elements"]:
             print("No results found.")
             return
 
-        print("\nSearch Results\n")
+        for i, place in enumerate(data["elements"], 1):
+            print(i, place.get("tags", {}).get("name", "Unknown"))
+            print(place["lat"], place["lon"])
+            print()
 
-        for i, place in enumerate(data["elements"][:10], 1):
-            tags = place.get("tags", {})
-            print(f"{i}. {tags.get('name','Unknown')}")
-            print("Latitude :", place["lat"])
-            print("Longitude:", place["lon"])
-            print("-"*40)
-
-    except Exception as e:
-        print("Error:", e)
+    else:
+        print(response.text)
 
 
-city = input("Enter City: ")
-amenity = input("Enter Amenity (hospital/school/bank/pharmacy/restaurant): ")
+city = input("Enter city: ")
+amenity = input("Enter search (hospital/school/pharmacy/bank/restaurant): ")
 
 local_crawler(city, amenity)
 
 
-
-
 # -------------------practical 9 ---------------
 # Develop a programme for deep search implementation to detect plagiarism in documents online.
+
+"""
+This practical builds a deep search plagiarism detection program that analyzes document similarity against online web resources. The user inputs a block of text, which is tokenized and stripped of stop words using NLTK to isolate the core vocabulary. The script then live-scrapes a reference web page, such as a Wikipedia article, and processes its text using the exact same pipeline. Finally, it uses Python’s difflib library to run a SequenceMatcher algorithm, calculating a ratio that measures the longest common subsequences. If this similarity score crosses a specified threshold, the system flags the user's document as plagiarized.
+"""
 
 
 # pip install requests beautifulsoup4 nltk
@@ -609,70 +638,99 @@ else:
     print("Text is Not Plagiarized.")
 
 
-# -------------------practical 10 a(visualise)---------------
+
+
+# -------------------practical 10 ---------------
 #Sentiment analysis for reviews by customers and visualize the same.
 
-#pip install pandas matplotlib textblob vaderSentiment
+# pip install pandas matplotlib textblob vaderSentiment
 
-
-
+"""
+This practical focuses on analyzing and visualizing customer reviews using rule-based sentiment analysis tools. It reads text reviews from a CSV file using Pandas and passes them through two distinct NLP libraries: TextBlob and VADER (Valence Aware Dictionary and sEntiment Reasoner). Both libraries calculate a polarity score between -1 (highly negative) and +1 (highly positive), with VADER being specifically tuned for social media and informal review language. Finally, the script uses Matplotlib to generate a box plot comparing the distribution of scores across both analyzers, visualizing the overall customer sentiment trend.
+This practical implements a targeted customer review sentiment classifier grouped by unique product identification numbers.
+ It reads a dataset using Pandas and applies TextBlob to evaluate the text string of each review, assigning it a numerical
+  
+    polarity score. The script then applies a lambda function to categorize these raw scores into explicit buckets: 'positive' for scores above zero, 'negative' for scores below zero, and 'neutral' for exact zeros. Finally, it groups the data to print a clean statistical breakdown of positive, negative, and neutral feedback counts for each product ID, showcasing how businesses track satisfaction across specific inventory items.
+"""
+# Sentiment Analysis for Customer Reviews and Visualization
 
 # Import necessary libraries
-#pip install textblob
-#pip install vaderSentiment
+# pip install textblob
+# pip install vaderSentiment
+
 import pandas as pd
 import matplotlib.pyplot as plt
 from textblob import TextBlob
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-# Load customer reviews into a dataframe
-reviews_df = pd.read_csv('customer_reviews.csv')
+# Load customer reviews dataset
+reviews_df = pd.read_csv("customer_reviews.csv")
 
-# Define functions for sentiment analysis using TextBlob and VaderSentiment
+# Create VADER analyzer object
+analyzer = SentimentIntensityAnalyzer()
+
+# Function to calculate TextBlob sentiment
 def get_textblob_sentiment(review):
     return TextBlob(review).sentiment.polarity
 
+# Function to calculate VADER sentiment
 def get_vader_sentiment(review):
-    analyzer = SentimentIntensityAnalyzer()
-    return analyzer.polarity_scores(review)['compound']
+    return analyzer.polarity_scores(review)["compound"]
 
-# Apply sentiment analysis functions to customer reviews dataframe
-reviews_df['TextBlob_Sentiment'] = reviews_df['review_text'].apply(get_textblob_sentiment)
-reviews_df['Vader_Sentiment'] = reviews_df['review_text'].apply(get_vader_sentiment)
+# Apply sentiment analysis
+reviews_df["TextBlob_Sentiment"] = reviews_df["review_text"].apply(get_textblob_sentiment)
+reviews_df["Vader_Sentiment"] = reviews_df["review_text"].apply(get_vader_sentiment)
 
-# Visualize sentiment analysis results using a box plot
-plt.boxplot([reviews_df['TextBlob_Sentiment'], reviews_df['Vader_Sentiment']])
-plt.xticks([1, 2], ['TextBlob', 'Vader'])
-plt.ylabel('Sentiment Score')
-plt.title('Customer Review Sentiment Analysis')
-plt.show()
+# Categorize TextBlob sentiment scores
+def sentiment_category(score):
+    if score > 0:
+        return "Positive"
+    elif score < 0:
+        return "Negative"
+    else:
+        return "Neutral"
 
+reviews_df["Sentiment_Category"] = reviews_df["TextBlob_Sentiment"].apply(sentiment_category)
 
-# -------------------practical 10 b---------------
-#Sentiment analysis for reviews by customers and visualize the same.
+# Display sentiment count for each product
+print("Sentiment Analysis by Product - practical_10.1.py:42")
+print("" * 40)
 
-# pip install pandas matplotlib textblob vaderSentiment
+for product_id in reviews_df["product_id"].unique():
+    product_reviews = reviews_df[reviews_df["product_id"] == product_id]
 
-
-
-import pandas as pd
-from textblob import TextBlob
-
-# read in the customer_reviews.csv file as a Pandas dataframe
-reviews_df = pd.read_csv('customer_reviews.csv')
-
-# create a new column in the dataframe to hold the sentiment polarity score for each review
-reviews_df['sentiment_score'] = reviews_df['review_text'].apply(lambda x: TextBlob(x).sentiment.polarity)
-
-# categorize the sentiment scores into positive, negative, and neutral
-reviews_df['sentiment_category'] = reviews_df['sentiment_score'].apply(lambda x: 'positive' if x > 0 else 'negative' if x < 0 else 'neutral')
-
-# print out the count of reviews in each sentiment category for each product
-for product_id in reviews_df['product_id'].unique():
-    product_reviews_df = reviews_df[reviews_df['product_id'] == product_id]
-    print('Product', product_id)
-    print('Positive reviews:', len(product_reviews_df[product_reviews_df['sentiment_category'] == 'positive']))
-    print('Negative reviews:', len(product_reviews_df[product_reviews_df['sentiment_category'] == 'negative']))
-    print('Neutral reviews:', len(product_reviews_df[product_reviews_df['sentiment_category'] == 'neutral']))
+    print("Product: - practical_10.1.py:48", product_id)
+    print("Positive Reviews: - practical_10.1.py:49", len(product_reviews[product_reviews["Sentiment_Category"] == "Positive"]))
+    print("Negative Reviews: - practical_10.1.py:50", len(product_reviews[product_reviews["Sentiment_Category"] == "Negative"]))
+    print("Neutral Reviews : - practical_10.1.py:51", len(product_reviews[product_reviews["Sentiment_Category"] == "Neutral"]))
     print()
 
+# ---------------- Visualization ----------------
+
+# Box Plot for sentiment scores
+plt.figure(figsize=(8,5))
+
+plt.boxplot([
+    reviews_df["TextBlob_Sentiment"],
+    reviews_df["Vader_Sentiment"]
+])
+
+plt.xticks([1, 2], ["TextBlob", "VADER"])
+plt.title("Customer Review Sentiment Scores")
+plt.ylabel("Sentiment Score")
+plt.grid(True)
+
+plt.show()
+
+# Bar Chart for sentiment categories
+sentiment_counts = reviews_df["Sentiment_Category"].value_counts()
+
+plt.figure(figsize=(6,5))
+plt.bar(sentiment_counts.index, sentiment_counts.values)
+
+plt.title("Customer Review Sentiment Categories")
+plt.xlabel("Sentiment")
+plt.ylabel("Number of Reviews")
+plt.grid(axis="y")
+
+plt.show()

@@ -1,67 +1,48 @@
-# Develop a focused crawler for local search.
-
-# pip install requests beautifulsoup4
-
 import requests
 
-def local_crawler(city, amenity):
+def local_crawler(location, amenity):
 
-    bbox = {
-        "mumbai": "18.89,72.77,19.30,73.00",
-        "pune": "18.45,73.75,18.65,73.98",
-        "delhi": "28.50,76.90,28.90,77.40"
-    }
-
-    city = city.lower()
-
-    if city not in bbox:
-        print("City not available.")
+    if location.lower() != "mumbai":
+        print("Currently only Mumbai is supported.")
         return
 
     query = f"""
-    [out:json][timeout:25];
-    node["amenity"="{amenity}"]({bbox[city]});
-    out body;
+    [out:json];
+    node["amenity"="{amenity}"](18.89,72.77,19.27,72.99);
+    out;
     """
 
-    url = "https://overpass.kumi.systems/api/interpreter"
+    url = "https://overpass-api.de/api/interpreter"
 
     headers = {
-        "User-Agent": "Mozilla/5.0"
+        "User-Agent": "Python Local Crawler"
     }
 
-    try:
-        response = requests.post(
-            url,
-            data={"data": query},
-            headers=headers,
-            timeout=30
-        )
+    response = requests.post(
+        url,
+        data={"data": query},
+        headers=headers
+    )
 
-        print("Status Code:", response.status_code)
+    print("Status Code:", response.status_code)
 
-        response.raise_for_status()
-
+    if response.status_code == 200:
         data = response.json()
 
         if not data["elements"]:
             print("No results found.")
             return
 
-        print("\nSearch Results\n")
+        for i, place in enumerate(data["elements"], 1):
+            print(i, place.get("tags", {}).get("name", "Unknown"))
+            print(place["lat"], place["lon"])
+            print()
 
-        for i, place in enumerate(data["elements"][:10], 1):
-            tags = place.get("tags", {})
-            print(f"{i}. {tags.get('name','Unknown')}")
-            print("Latitude :", place["lat"])
-            print("Longitude:", place["lon"])
-            print("-"*40)
-
-    except Exception as e:
-        print("Error:", e)
+    else:
+        print(response.text)
 
 
-city = input("Enter City: ")
-amenity = input("Enter Amenity (hospital/school/bank/pharmacy/restaurant): ")
+city = input("Enter city: ")
+amenity = input("Enter search (hospital/school/pharmacy/bank/restaurant): ")
 
 local_crawler(city, amenity)
